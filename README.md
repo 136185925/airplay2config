@@ -19,7 +19,7 @@
 树莓派使用 **arm64** 安装包；WSL / Intel、AMD Linux 电脑使用 **x64** 安装包。不能互换。
 
 ```bash
-sudo apt-get install python3 libconfig9 libasound2t64 libgtk-3-0t64 liblzma5 libstdc++6 pkexec polkitd fonts-noto-cjk
+sudo apt-get install python3 libconfig11 libasound2t64 libgtk-3-0t64 liblzma5 libstdc++6 pkexec polkitd fonts-noto-cjk
 # 解压对应架构的安装包后进入目录
 sudo bash scripts/install.sh
 airplay-control
