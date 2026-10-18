@@ -1,3 +1,7 @@
+<img width="800" height="480" alt="11111" src="https://github.com/user-attachments/assets/5469d5ac-ca85-4619-8fd3-6577e1117d90" />
+
+
+
 # AirPlay 控制台
 
 为 Raspberry Pi 开发的 Flutter Linux 桌面配置程序，界面为中文。
