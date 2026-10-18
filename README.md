@@ -29,6 +29,84 @@ airplay-control
 
 安装过程不会修改 AirPlay 配置或重启接收器。若运行用户不能枚举声卡，请检查 `/dev/snd` 权限和 `audio` 组；更改组后重新登录。避免同时让其他播放器或 PipeWire 独占所选硬件。
 
+## 一键安装做什么
+
+后台安装固定版本 **Shairport Sync 5.5.2 + NQPTP 1.2.8**，核对 Git 提交后，以低权限构建账户编译。安装构建依赖时不会运行全系统 `apt upgrade`，也不允许 APT 删除已有软件包。
+
+- 程序目录：`/opt/airplay-control-receiver/`。
+- 服务：`shairport-sync.service` 和 `nqptp.service`，安装成功后启用开机启动。
+- 新配置按所选设备支持的双声道 PCM 格式与 44.1/48 kHz 组合生成；设备不支持或被占用时明确报错，不强行重采样。
+- 首次生成配置默认关闭音量处理和 DSP，保留本项目的连续数字静音方案。
+- 已有配置完整保留；已有自定义 systemd drop-in 或符号链接配置需要人工确认，不自动覆盖。
+- 安装失败会恢复提交前的接收器配置、程序和服务单元；已安装的系统依赖和构建缓存会保留。
+- 安装在 systemd 后台执行，关闭窗口或退出终端进度显示不会中止。失败可查看日志后再次安装。
+
+安装日志：`/var/lib/airplay-control/install.log`；阶段状态：`/var/lib/airplay-control/install.json`；接收器安装备份：`/var/backups/airplay-control/receiver-<时间>/`。
+
+不自动修改防火墙或停止 PipeWire 等其他音频服务。USB 声卡若被其他程序独占，先释放设备后重试。已有较旧的 Shairport Sync 配置可能与 5.5.2 不兼容，启动失败时保留原配置并显示日志。
+
+## 纯终端模式
+
+SSH、Raspberry Pi OS Lite 或无显示器环境可使用全部配置功能。`airplay-control` 在没有 DISPLAY / WAYLAND_DISPLAY 时默认打印当前状态；有桌面时打开图形界面。
+
+```bash
+# 显示配置、服务、当前输出状态及设备信息
+airplay-control status
+airplay-control status --watch
+
+# 枚举真实 ALSA 播放硬件及采样率能力
+airplay-control devices
+
+# 一键安装（多设备时使用 devices 显示的 ID）
+airplay-control install --device 'hw:CARD=Audio,DEV=0' --name '客厅音响' --wait
+
+# 修改名称 / 音量控制 / 音频输出，并立即应用
+airplay-control set --name '书房音响'
+airplay-control set --volume off
+airplay-control set --volume on
+airplay-control set --device 'hw:CARD=USB,DEV=0'
+airplay-control set --name '客厅' --volume off --device 'hw:CARD=Audio,DEV=0'
+
+# 启停接收器与诊断
+airplay-control start
+airplay-control stop
+airplay-control restart
+airplay-control logs
+
+# 交互式控制台，进入后输入 help 或上述子命令，exit 退出
+airplay-control console
+
+# JSON 输出 / 强制图形模式 / 演示模式
+airplay-control --json status
+airplay-control --json devices
+airplay-control gui
+airplay-control --demo
+airplay-control --demo-setup
+```
+
+上面的 `hw:CARD=...` 是示例，请以当前设备列表为准。只有一个播放设备时，`install` 可以省略 `--device`。`--wait` 中按 Ctrl+C 只退出进度显示。终端中的写入、安装、启停操作会请求 sudo 授权；不保存密码。`stop` 停止接收器，NQPTP 时钟服务保留运行。
+
+仅安装终端版（含 32 位系统）：解压源码包，进入项目目录后执行：
+
+```bash
+sudo bash scripts/install.sh --cli-only
+airplay-control console
+```
+
+该模式在本机编译小型 ALSA/libconfig 辅助程序，不编译 Flutter、不安装图形依赖。
+
+## 设备采样率显示
+
+设备列表查询 ALSA 硬件双声道能力，显示 8–768 kHz 范围内常见支持值，并非承诺枚举所有整数采样率。ALSA 的采样率上下限保留在 JSON 输出中；范围中不一定每个采样率都可用。
+
+正在播放的 USB 设备不能直接打开时，使用内核 USB 播放描述符作为参考，并标注「USB 描述符」。不会混入录音采样率。无可用描述符时显示「待确认」，不会停止播放来查询。具体采样率与样本格式组合在应用或首次安装时验证，查询不会发送测试音。
+
+顶部显示的是当前硬件运行采样率，可能是连续数字静音，不等同于正在播放音乐。关闭音量控制表示忽略手机音量指令，不等同于整个 AirPlay 链路逐位一致。
+
+## 800×480 显示
+
+使用紧凑的两栏布局，名称、音量和输出选择在同一屏；设备较多时只滚动设备列表，底部操作栏固定。小屏幕启动时最大化，保留桌面窗口关闭能力。更窄窗口采用上下排列。界面截图位于 `screenshots/preview-800x480.png` 和 `screenshots/setup-800x480.png`。
+
 ```bash
 # 无硬件演示；名称、音量和设备修改只保存在本次进程内存中
 airplay-control --demo
