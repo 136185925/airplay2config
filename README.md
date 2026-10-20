@@ -118,6 +118,8 @@ airplay-control --demo
 /usr/local/lib/airplay-control/airplay-helper status
 ```
 
+## //***********以下内容需发布源码后测试用****************// 
+
 ## WSL 开发与编译
 
 可以使用 WSL2 + WSLg / X11 开发、热重载和预览 Linux 界面。WSL 的 Flutter SDK 必须与 Windows SDK 分开，避免 Linux/Windows 缓存互相覆盖。当前开发机使用：
