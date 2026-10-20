@@ -118,7 +118,7 @@ airplay-control --demo
 /usr/local/lib/airplay-control/airplay-helper status
 ```
 
-## //***********以下内容需发布源码后测试用****************// 
+## //-----------以下内容需等发布源码后测试用------------// 
 
 ## WSL 开发与编译
 
